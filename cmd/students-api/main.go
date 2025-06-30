@@ -13,7 +13,7 @@ import (
 
 	"github.com/Prashant2307200/students-api/internal/config"
 	"github.com/Prashant2307200/students-api/internal/http/handlers/student"
-	"github.com/Prashant2307200/students-api/storage/sqlite"
+	"github.com/Prashant2307200/students-api/internal/sqlite"
 )
 
 func main() {

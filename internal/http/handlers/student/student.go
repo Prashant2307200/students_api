@@ -8,9 +8,9 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/Prashant2307200/students-api/internal"
 	"github.com/Prashant2307200/students-api/internal/types"
 	"github.com/Prashant2307200/students-api/internal/utils/response"
-	"github.com/Prashant2307200/students-api/storage"
 	"github.com/go-playground/validator"
 )
 
