@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -13,15 +13,23 @@ import (
 
 	"github.com/Prashant2307200/students-api/internal/config"
 	"github.com/Prashant2307200/students-api/internal/http/handlers/student"
+	"github.com/Prashant2307200/students-api/storage/sqlite"
 )
 
 func main() {
 
 	cfg := config.MustLoad()
 
+	storage, err := sqlite.New(cfg)
+	if err != nil {
+		log.Fatalf("Failed to initialize storage: %s", err.Error())
+	}
+
+	slog.Info("Storage initialized", slog.String("storage_path", cfg.StoragePath))
+
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /api/students", student.New())
+	router.HandleFunc("POST /api/students", student.New(storage))
 
 	server := http.Server{
 		Addr:    cfg.HttpServer.Addr,
@@ -29,7 +37,7 @@ func main() {
 	}
 
 	slog.Info("Server started", slog.String("address", cfg.HttpServer.Addr))
-	fmt.Printf("Server is running... %s", cfg.HttpServer.Addr)
+	// fmt.Printf("Server is running... %s\n", cfg.HttpServer.Addr)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
