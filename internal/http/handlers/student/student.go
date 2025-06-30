@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/Prashant2307200/students-api/internal/storage"
 	"github.com/Prashant2307200/students-api/internal/types"
@@ -48,5 +49,45 @@ func New(storage storage.Storage) http.HandlerFunc {
 		w.Header().Set("Location", r.URL.Path+"/"+fmt.Sprint(id))
 
 		response.WriteJson(w, http.StatusOK, map[string]int64{"id": id})
+	}
+}
+
+func GetById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rawId := r.PathValue("id")
+		slog.Info("Retrieving student by ID", slog.String("id", rawId))
+
+		id, err := strconv.ParseInt(rawId, 10, 64)
+		if err != nil {
+			slog.Error("Invalid student ID", slog.Any("error", err))
+			response.WriteJson(w, http.StatusBadRequest, response.GeneralError(errors.New("invalid student ID")))
+			return
+		}
+
+		student, err := storage.GetStudentById(id)
+		if err != nil {
+			slog.Error("Failed to get student", slog.Any("error", err))
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		slog.Info("Student retrieved successfully", slog.Any("student", student))
+		response.WriteJson(w, http.StatusOK, student)
+	}
+}
+
+func GetList(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		slog.Info("Retrieving list of students")
+
+		students, err := storage.GetStudentsList()
+		if err != nil {
+			slog.Error("Failed to get students", slog.Any("error", err))
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		slog.Info("Students retrieved successfully", slog.Int("count", len(students)))
+		response.WriteJson(w, http.StatusOK, students)
 	}
 }
