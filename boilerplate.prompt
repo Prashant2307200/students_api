@@ -1,0 +1,88 @@
+I want you to generate a complete Go backend boilerplate for a "students API" project. The code must be structured and implemented exactly as described below, matching the provided code style, folder structure, and conventions. The generated code should be ready to run and maintainable, following idiomatic Go practices.
+
+Project Requirements:
+
+  Use Go modules.
+  Use the standard library and the following third-party packages:
+    modernc.org/sqlite for SQLite database access (pure Go, no CGO).
+    github.com/go-playground/validator for struct validation.
+    log/slog for structured logging.
+  The API should manage student records with fields: Id, Name, Age, Email.
+  Implement RESTful endpoints to:
+    Create a student (POST).
+    Get a student by ID (GET).
+    List all students (GET).
+  Use a clean architecture with the following folder structure:
+
+go.mod
+go.sum
+cmd/
+    students-api/
+        main.go
+config/
+    local.yaml
+internal/
+    config/
+        config.go
+    http/
+        handlers/
+            student/
+                student.go
+    storage/
+        storage.go
+        sqlite/
+            sqlite.go
+    types/
+        types.go
+    utils/
+        response/
+            response.go
+storage/
+    storage.db
+
+
+Each package/file should have clear responsibilities:
+  types.go: Define the Student struct and related types.
+  storage.go: Define the Storage interface and its methods.
+  sqlite.go: Implement the Storage interface using SQLite and modernc.org/sqlite.
+  student.go: HTTP handlers for student endpoints, using slog for logging and validator for   validation.
+  response.go: Utility functions for writing JSON responses and error handling.
+  config.go: Load configuration from YAML.
+  main.go: Application entry point, wire up config, storage, HTTP server, and routes.
+Use dependency injection for storage and config.
+Use structured logging (slog) for all major actions and errors.
+Use proper HTTP status codes and error messages.
+All code must be idiomatic Go, with clear separation of concerns and error handling.
+The code must be consistent with the following example for the student handler (do not change  style, naming, or logic):
+
+func GetById(storage storage.Storage) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        rawId := r.PathValue("id")
+        slog.Info("Retrieving student by ID", slog.String("id", rawId))
+
+        id, err := strconv.ParseInt(rawId, 10, 64)
+        if err != nil {
+            slog.Error("Invalid student ID", slog.Any("error", err))
+            response.WriteJson(w, http.StatusBadRequest, response.GeneralError(errors.New("invalid student ID")))
+            return
+        }
+
+        student, err := storage.GetStudentById(id)
+        if err != nil {
+            slog.Error("Failed to get student", slog.Any("error", err))
+            response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+            return
+        }
+
+        slog.Info("Student retrieved successfully", slog.Any("student", student))
+        response.WriteJson(w, http.StatusOK, student)
+    }
+}
+
+Instructions:
+
+  Generate all code files as described, with correct package names and imports.
+  Ensure all code is consistent with the above style and logic.
+  Do not use any code generation tools or frameworks—write idiomatic Go code.
+  The code must be ready to run after go mod tidy and go run [main.go](http://_vscodecontentref_/9)   -config config/local.yaml.
+  Include a sample local.yaml and instructions for running the project.

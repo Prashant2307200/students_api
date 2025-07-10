@@ -1,0 +1,16 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "isPow",
+  "steps": [
+    {
+      "file": "hello.js",
+      "description": "isPow2 to check whether the number is power of 2 or not",
+      "line": 1
+    },
+    {
+      "file": "hello.js",
+      "description": "isPow3 to check whethr the number is power of 3 or not",
+      "line": 5
+    }
+  ]
+}
